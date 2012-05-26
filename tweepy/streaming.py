@@ -178,12 +178,19 @@ class Stream(object):
         """ Called when the response has been closed by Twitter """
         pass
 
-    def userstream(self, count=None, async=False, secure=True):
+    def userstream(self, count=None, async=False, follow=None, track=None, locations=None):
         self.parameters = {'delimited': 'length'}
         if self.running:
             raise TweepError('Stream object already connected!')
         self.url = '/2/user.json?delimited=length'
         self.host='userstream.twitter.com'
+        if follow:
+            self.url += '&follow=%s' % ','.join(map(str, follow))
+        if track:
+            self.url += '&track=%s' % ','.join(map(str, track))
+        if locations and len(locations) > 0:
+            assert len(locations) % 4 == 0
+            self.url += '&locations=%s' % ','.join(['%.2f' % l for l in locations])
         if count:
             self.url += '&count=%s' % count
         self._start(async)
